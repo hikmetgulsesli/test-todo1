@@ -127,6 +127,8 @@ if (typeof module !== 'undefined' && module.exports) {
         toggleTodo,
         deleteTodo,
         clearCompleted,
+        updateItemsLeft,
+        renderTodos,
         STORAGE_KEY
     };
 }

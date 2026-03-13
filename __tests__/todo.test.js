@@ -3,6 +3,12 @@
  */
 
 // Set up DOM structure before loading script
+document.head.innerHTML = `
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Todo List</title>
+`;
+
 document.body.innerHTML = `
     <div class="todo-container">
         <div class="todo-header">
@@ -56,7 +62,8 @@ const {
     toggleTodo,
     deleteTodo,
     clearCompleted,
-    STORAGE_KEY
+    STORAGE_KEY,
+    renderTodos
 } = require('../script.js');
 
 describe('Todo App', () => {
@@ -242,6 +249,53 @@ describe('Todo App', () => {
         });
     });
 
+    describe('Item counter', () => {
+        test('should display correct count of remaining items - single item', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Active todo', completed: false }
+            ]));
+            
+            renderTodos();
+            
+            const itemsLeft = document.getElementById('items-left');
+            expect(itemsLeft.textContent).toBe('1 item left');
+        });
+
+        test('should display correct count of remaining items - multiple items', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Active 1', completed: false },
+                { text: 'Active 2', completed: false },
+                { text: 'Completed', completed: true }
+            ]));
+            
+            renderTodos();
+            
+            const itemsLeft = document.getElementById('items-left');
+            expect(itemsLeft.textContent).toBe('2 items left');
+        });
+
+        test('should display "0 items left" when all todos are completed', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Completed 1', completed: true },
+                { text: 'Completed 2', completed: true }
+            ]));
+            
+            renderTodos();
+            
+            const itemsLeft = document.getElementById('items-left');
+            expect(itemsLeft.textContent).toBe('0 items left');
+        });
+
+        test('should display correct count with no todos', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([]));
+            
+            renderTodos();
+            
+            const itemsLeft = document.getElementById('items-left');
+            expect(itemsLeft.textContent).toBe('0 items left');
+        });
+    });
+
     describe('Clear completed functionality', () => {
         test('should clear all completed todos', () => {
             localStorageMock.getItem.mockReturnValue(JSON.stringify([
@@ -271,6 +325,55 @@ describe('Todo App', () => {
             expect(savedData).toHaveLength(2);
             expect(savedData[0].text).toBe('Active 1');
             expect(savedData[1].text).toBe('Active 2');
+        });
+
+        test('should handle clearing when no completed todos exist', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Active 1', completed: false },
+                { text: 'Active 2', completed: false }
+            ]));
+            
+            clearCompleted();
+            
+            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            expect(savedData).toHaveLength(2);
+            expect(savedData[0].completed).toBe(false);
+            expect(savedData[1].completed).toBe(false);
+        });
+
+        test('should handle clearing when all todos are completed', () => {
+            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Completed 1', completed: true },
+                { text: 'Completed 2', completed: true }
+            ]));
+            
+            clearCompleted();
+            
+            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            expect(savedData).toHaveLength(0);
+        });
+    });
+
+    describe('Responsive layout', () => {
+        test('should have viewport meta tag for mobile responsiveness', () => {
+            const metaViewport = document.querySelector('meta[name="viewport"]');
+            expect(metaViewport).toBeTruthy();
+            expect(metaViewport.getAttribute('content')).toContain('width=device-width');
+        });
+
+        test('should have CSS media queries defined', () => {
+            // Check that the CSS file contains media queries
+            const fs = require('fs');
+            const cssPath = require('path').join(__dirname, '../style.css');
+            const cssContent = fs.readFileSync(cssPath, 'utf-8');
+            
+            expect(cssContent).toContain('@media');
+            expect(cssContent).toContain('max-width: 480px');
+        });
+
+        test('should have input wrapper for mobile stacking layout', () => {
+            const inputWrapper = document.querySelector('.input-wrapper');
+            expect(inputWrapper).toBeTruthy();
         });
     });
 });
