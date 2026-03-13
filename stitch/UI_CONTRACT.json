@@ -1,0 +1,180 @@
+[
+  {
+    "screenId": "62e44a261364461f91c695cb39b4478c",
+    "screenTitle": "My Todo List Desktop View",
+    "deviceType": "DESKTOP",
+    "elements": [
+      {
+        "type": "button",
+        "label": "Add",
+        "line": 52
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 65
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 75
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 85
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 95
+      },
+      {
+        "type": "button",
+        "label": "Clear Completed",
+        "line": 103
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 66
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 76
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 86
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 96
+      },
+      {
+        "type": "input",
+        "label": "What needs to be done?",
+        "inputType": "text",
+        "placeholder": "What needs to be done?",
+        "line": 51
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 62
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 72
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 82
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 92
+      }
+    ],
+    "navigation": [],
+    "buttons": [
+      {
+        "type": "button",
+        "label": "Add",
+        "line": 52
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 65
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 75
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 85
+      },
+      {
+        "type": "button",
+        "label": "close",
+        "line": 95
+      },
+      {
+        "type": "button",
+        "label": "Clear Completed",
+        "line": 103
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 66
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 76
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 86
+      },
+      {
+        "type": "button",
+        "label": "[icon: close]",
+        "line": 96
+      }
+    ],
+    "inputs": [
+      {
+        "type": "input",
+        "label": "What needs to be done?",
+        "inputType": "text",
+        "placeholder": "What needs to be done?",
+        "line": 51
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 62
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 72
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 82
+      },
+      {
+        "type": "input",
+        "label": "checkbox",
+        "inputType": "checkbox",
+        "line": 92
+      }
+    ],
+    "hardcodedData": [],
+    "totalInteractive": 15,
+    "requiresRouter": false,
+    "requiresDragDrop": false
+  }
+]
