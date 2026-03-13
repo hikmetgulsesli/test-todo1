@@ -20,9 +20,8 @@ function saveTodos(todos) {
 }
 
 // Update items left count
-function updateItemsLeft() {
-    const todos = loadTodos();
-    const activeCount = todos.filter(t => !t.completed).length;
+function updateItemsLeft(todos) {
+    const activeCount = (todos || loadTodos()).filter(t => !t.completed).length;
     itemsLeftSpan.textContent = `${activeCount} item${activeCount !== 1 ? 's' : ''} left`;
 }
 
@@ -36,7 +35,7 @@ function renderTodos() {
         emptyDiv.className = 'empty-state';
         emptyDiv.textContent = 'No todos yet. Add one above!';
         todoList.appendChild(emptyDiv);
-        updateItemsLeft();
+        updateItemsLeft(todos);
         return;
     }
     
@@ -67,7 +66,7 @@ function renderTodos() {
         todoList.appendChild(li);
     });
     
-    updateItemsLeft();
+    updateItemsLeft(todos);
 }
 
 // Add a new todo
@@ -127,6 +126,7 @@ if (typeof module !== 'undefined' && module.exports) {
         toggleTodo,
         deleteTodo,
         clearCompleted,
+        updateItemsLeft,
         STORAGE_KEY
     };
 }

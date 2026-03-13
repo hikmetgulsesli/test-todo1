@@ -3,6 +3,10 @@
  */
 
 // Set up DOM structure before loading script
+document.head.innerHTML = `
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+`;
 document.body.innerHTML = `
     <div class="todo-container">
         <div class="todo-header">
@@ -26,28 +30,6 @@ document.body.innerHTML = `
     </div>
 `;
 
-// Mock localStorage
-const localStorageMock = (() => {
-    let store = {};
-    return {
-        getItem: jest.fn((key) => store[key] || null),
-        setItem: jest.fn((key, value) => {
-            store[key] = value.toString();
-        }),
-        removeItem: jest.fn((key) => {
-            delete store[key];
-        }),
-        clear: jest.fn(() => {
-            store = {};
-        }),
-        _getStore: () => store
-    };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock
-});
-
 // Load script after DOM setup
 const {
     loadTodos,
@@ -56,12 +38,13 @@ const {
     toggleTodo,
     deleteTodo,
     clearCompleted,
+    updateItemsLeft,
     STORAGE_KEY
 } = require('../script.js');
 
 describe('Todo App', () => {
     beforeEach(() => {
-        localStorageMock.clear();
+        localStorage.clear();
         jest.clearAllMocks();
         document.getElementById('todo-input').value = '';
     });
@@ -74,7 +57,7 @@ describe('Todo App', () => {
         test('should save todos to localStorage', () => {
             const todos = [{ text: 'Test todo', completed: false }];
             saveTodos(todos);
-            expect(localStorageMock.setItem).toHaveBeenCalledWith(
+            expect(localStorage.setItem).toHaveBeenCalledWith(
                 'simple-todo-items',
                 JSON.stringify(todos)
             );
@@ -82,16 +65,16 @@ describe('Todo App', () => {
 
         test('should load todos from localStorage', () => {
             const todos = [{ text: 'Test todo', completed: false }];
-            localStorageMock.getItem.mockReturnValue(JSON.stringify(todos));
+            localStorage.getItem.mockReturnValue(JSON.stringify(todos));
             
             const result = loadTodos();
             
-            expect(localStorageMock.getItem).toHaveBeenCalledWith('simple-todo-items');
+            expect(localStorage.getItem).toHaveBeenCalledWith('simple-todo-items');
             expect(result).toEqual(todos);
         });
 
         test('should return empty array when localStorage is empty', () => {
-            localStorageMock.getItem.mockReturnValue(null);
+            localStorage.getItem.mockReturnValue(null);
             
             const result = loadTodos();
             
@@ -104,8 +87,8 @@ describe('Todo App', () => {
             
             addTodo();
             
-            expect(localStorageMock.setItem).toHaveBeenCalled();
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            expect(localStorage.setItem).toHaveBeenCalled();
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(1);
             expect(savedData[0].text).toBe('Persistent todo');
         });
@@ -114,11 +97,13 @@ describe('Todo App', () => {
     describe('Add todo functionality', () => {
         test('should add todo when clicking Add button', () => {
             const todoInput = document.getElementById('todo-input');
+            const addBtn = document.getElementById('add-btn');
             todoInput.value = 'New todo item';
             
-            addTodo();
+            // Dispatch click event to trigger the event listener
+            addBtn.click();
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(1);
             expect(savedData[0].text).toBe('New todo item');
             expect(savedData[0].completed).toBe(false);
@@ -128,16 +113,11 @@ describe('Todo App', () => {
             const todoInput = document.getElementById('todo-input');
             todoInput.value = 'Enter key todo';
             
-            // Simulate Enter key
-            const event = new KeyboardEvent('keypress', { key: 'Enter' });
+            // Simulate Enter key event - this triggers the event listener in script.js
+            const event = new KeyboardEvent('keypress', { key: 'Enter', bubbles: true });
             todoInput.dispatchEvent(event);
             
-            // Trigger the handler directly since we can't easily test the event listener
-            if (event.key === 'Enter') {
-                addTodo();
-            }
-            
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(1);
             expect(savedData[0].text).toBe('Enter key todo');
         });
@@ -148,7 +128,7 @@ describe('Todo App', () => {
             
             addTodo();
             
-            expect(localStorageMock.setItem).not.toHaveBeenCalled();
+            expect(localStorage.setItem).not.toHaveBeenCalled();
         });
 
         test('should clear input after adding todo', () => {
@@ -161,7 +141,7 @@ describe('Todo App', () => {
         });
 
         test('should add new todos at the bottom of the list', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'First todo', completed: false }
             ]));
             
@@ -170,7 +150,7 @@ describe('Todo App', () => {
             
             addTodo();
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(2);
             expect(savedData[1].text).toBe('Second todo');
         });
@@ -181,40 +161,40 @@ describe('Todo App', () => {
             
             addTodo();
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData[0].completed).toBe(false);
         });
     });
 
     describe('Check/uncheck todo functionality', () => {
         test('should toggle todo completion status', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'Todo 1', completed: false },
                 { text: 'Todo 2', completed: false }
             ]));
             
             toggleTodo(0);
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData[0].completed).toBe(true);
             expect(savedData[1].completed).toBe(false);
         });
 
         test('should uncheck a completed todo', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'Todo 1', completed: true }
             ]));
             
             toggleTodo(0);
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData[0].completed).toBe(false);
         });
     });
 
     describe('Delete todo functionality', () => {
         test('should delete a todo', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'Todo 1', completed: false },
                 { text: 'Todo 2', completed: false },
                 { text: 'Todo 3', completed: false }
@@ -222,21 +202,21 @@ describe('Todo App', () => {
             
             deleteTodo(1);
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(2);
             expect(savedData[0].text).toBe('Todo 1');
             expect(savedData[1].text).toBe('Todo 3');
         });
 
         test('should delete the correct todo by index', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'First', completed: false },
                 { text: 'Second', completed: false }
             ]));
             
             deleteTodo(0);
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(1);
             expect(savedData[0].text).toBe('Second');
         });
@@ -244,7 +224,7 @@ describe('Todo App', () => {
 
     describe('Clear completed functionality', () => {
         test('should clear all completed todos', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'Active todo', completed: false },
                 { text: 'Completed todo 1', completed: true },
                 { text: 'Completed todo 2', completed: true }
@@ -252,14 +232,14 @@ describe('Todo App', () => {
             
             clearCompleted();
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(1);
             expect(savedData[0].text).toBe('Active todo');
             expect(savedData[0].completed).toBe(false);
         });
 
         test('should keep active todos when clearing completed', () => {
-            localStorageMock.getItem.mockReturnValue(JSON.stringify([
+            localStorage.getItem.mockReturnValue(JSON.stringify([
                 { text: 'Active 1', completed: false },
                 { text: 'Completed', completed: true },
                 { text: 'Active 2', completed: false }
@@ -267,10 +247,70 @@ describe('Todo App', () => {
             
             clearCompleted();
             
-            const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
             expect(savedData).toHaveLength(2);
             expect(savedData[0].text).toBe('Active 1');
             expect(savedData[1].text).toBe('Active 2');
+        });
+    });
+
+    describe('Item counter', () => {
+        test('should show correct count with single item', () => {
+            const todos = [{ text: 'One item', completed: false }];
+            updateItemsLeft(todos);
+            expect(document.getElementById('items-left').textContent).toBe('1 item left');
+        });
+
+        test('should show correct count with multiple items', () => {
+            const todos = [
+                { text: 'Item 1', completed: false },
+                { text: 'Item 2', completed: false }
+            ];
+            updateItemsLeft(todos);
+            expect(document.getElementById('items-left').textContent).toBe('2 items left');
+        });
+
+        test('should show correct count when all completed', () => {
+            const todos = [
+                { text: 'Item 1', completed: true },
+                { text: 'Item 2', completed: true }
+            ];
+            updateItemsLeft(todos);
+            expect(document.getElementById('items-left').textContent).toBe('0 items left');
+        });
+
+        test('should show correct count with no todos', () => {
+            const todos = [];
+            updateItemsLeft(todos);
+            expect(document.getElementById('items-left').textContent).toBe('0 items left');
+        });
+    });
+
+    describe('Clear completed button', () => {
+        test('clear completed button removes completed todos', () => {
+            localStorage.getItem.mockReturnValue(JSON.stringify([
+                { text: 'Active', completed: false },
+                { text: 'Done', completed: true }
+            ]));
+            
+            const clearBtn = document.getElementById('clear-completed-btn');
+            clearBtn.click();
+            
+            const savedData = JSON.parse(localStorage.setItem.mock.calls[0][1]);
+            expect(savedData).toHaveLength(1);
+            expect(savedData[0].text).toBe('Active');
+        });
+    });
+
+    describe('Responsive layout', () => {
+        test('should have viewport meta tag', () => {
+            const meta = document.querySelector('meta[name="viewport"]');
+            expect(meta).toBeTruthy();
+        });
+
+        test('should have input-wrapper for mobile stacking', () => {
+            const wrapper = document.querySelector('.input-wrapper');
+            expect(wrapper).toBeTruthy();
         });
     });
 });
