@@ -1,0 +1,21 @@
+{
+  "name": "test-todo1",
+  "version": "1.0.0",
+  "description": "Simple todo list app",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint \"**/*.js\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0"
+  }
+}
