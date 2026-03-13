@@ -1,0 +1,17 @@
+{
+  "--color-primary": "#2463eb",
+  "--color-background-light": "#f5f5f5",
+  "--color-background-dark": "#111621",
+  "--color-surface": "#ffffff",
+  "--color-surface-dark": "#1e293b",
+  "--color-danger": "#e74c3c",
+  "--color-muted": "#aaaaaa",
+  "--font-display": "Space Grotesk, sans-serif",
+  "--font-body": "DM Sans, sans-serif",
+  "--radius-DEFAULT": "0.25rem",
+  "--radius-lg": "0.5rem",
+  "--radius-xl": "0.75rem",
+  "--radius-full": "9999px",
+  "--font-google-0": "Space Grotesk",
+  "--font-google-1": "DM Sans"
+}
